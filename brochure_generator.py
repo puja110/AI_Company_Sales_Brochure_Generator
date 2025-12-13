@@ -37,111 +37,111 @@ class BrochureGenerator:
                 "Please check your .env file."
             )
         
-        print(f"✅ API Key loaded successfully (length: {len(api_key)})")
+        print(f" API Key loaded successfully (length: {len(api_key)})")
         
         self.openai = OpenAI(api_key=api_key)
         self.model = model
         self.link_selection_model = "gpt-4o-mini"
         
         self.link_system_prompt = """
-You are provided with a list of links found on a webpage.
-You are able to decide which of the links would be most relevant to include in a brochure about the company,
-such as links to an About page, or a Company page, or Careers/Jobs pages.
-You should respond in JSON as in this example:
+    You are provided with a list of links found on a webpage.
+    You are able to decide which of the links would be most relevant to include in a brochure about the company,
+    such as links to an About page, or a Company page, or Careers/Jobs pages.
+    You should respond in JSON as in this example:
 
-{
-    "links": [
-        {"type": "about page", "url": "https://full.url/goes/here/about"},
-        {"type": "careers page", "url": "https://another.full.url/careers"}
-    ]
-}
-"""
+    {
+        "links": [
+            {"type": "about page", "url": "https://full.url/goes/here/about"},
+            {"type": "careers page", "url": "https://another.full.url/careers"}
+        ]
+    }
+    """
         
         self.brochure_system_prompt = """
-You are an expert marketing copywriter and brochure designer creating professional marketing materials.
+    You are an expert marketing copywriter and brochure designer creating professional marketing materials.
 
-Your task is to create a compelling, visually-structured company brochure that would be used by:
-- Sales teams to pitch to clients
-- Investors for funding decisions  
-- Job seekers to learn about the company
-- Partners for collaboration opportunities
+    Your task is to create a compelling, visually-structured company brochure that would be used by:
+    - Sales teams to pitch to clients
+    - Investors for funding decisions  
+    - Job seekers to learn about the company
+    - Partners for collaboration opportunities
 
-STRUCTURE YOUR BROCHURE WITH THESE SECTIONS:
+    STRUCTURE YOUR BROCHURE WITH THESE SECTIONS:
 
-## Executive Summary
-[2-3 compelling sentences that capture the company's essence and unique value proposition]
+    ## Executive Summary
+    [2-3 compelling sentences that capture the company's essence and unique value proposition]
 
-## About [Company Name]
-[Rich description of the company, its mission, vision, and what makes it special]
+    ## About [Company Name]
+    [Rich description of the company, its mission, vision, and what makes it special]
 
-## What We Do
-[Clear explanation of products/services with benefits focus]
+    ## What We Do
+    [Clear explanation of products/services with benefits focus]
 
-## Our Solutions
-[Bullet points of key offerings, each with a brief benefit statement]
+    ## Our Solutions
+    [Bullet points of key offerings, each with a brief benefit statement]
 
-## Who We Serve
-[Target markets, customer types, industries served]
+    ## Who We Serve
+    [Target markets, customer types, industries served]
 
-## Why Choose Us?
-[Unique selling points, competitive advantages, key differentiators]
+    ## Why Choose Us?
+    [Unique selling points, competitive advantages, key differentiators]
 
-## By The Numbers
-[If available: statistics, metrics, achievements, milestones - format as bullet points]
+    ## By The Numbers
+    [If available: statistics, metrics, achievements, milestones - format as bullet points]
 
-## Our Customers
-[If available: customer names, case studies, testimonials]
+    ## Our Customers
+    [If available: customer names, case studies, testimonials]
 
-## Recognition & Awards
-[If available: awards, certifications, partnerships]
+    ## Recognition & Awards
+    [If available: awards, certifications, partnerships]
 
-## Company Culture
-[If available: values, work environment, team culture]
+    ## Company Culture
+    [If available: values, work environment, team culture]
 
-## Career Opportunities
-[If available: why work here, open positions, benefits]
+    ## Career Opportunities
+    [If available: why work here, open positions, benefits]
 
-## 📞 Get In Touch
-[Contact information and call-to-action]
+    ## 📞 Get In Touch
+    [Contact information and call-to-action]
 
-WRITING GUIDELINES:
-- Use engaging, benefit-focused language
-- Keep paragraphs concise (2-4 sentences max)
-- Use bullet points for easy scanning
-- Include specific numbers and metrics when available
-- Write in an enthusiastic but professional tone
-- Focus on outcomes and value, not just features
-- Use action-oriented language
-- Make it skimmable with clear headings and structure
+    WRITING GUIDELINES:
+    - Use engaging, benefit-focused language
+    - Keep paragraphs concise (2-4 sentences max)
+    - Use bullet points for easy scanning
+    - Include specific numbers and metrics when available
+    - Write in an enthusiastic but professional tone
+    - Focus on outcomes and value, not just features
+    - Use action-oriented language
+    - Make it skimmable with clear headings and structure
 
-FORMATTING:
-- Use emojis for visual interest in headings
-- Bold important points
-- Use ">" for quote-style callouts when highlighting key information
-- Create clear visual hierarchy with headers
-- Add horizontal rules (---) to separate major sections
+    FORMATTING:
+    - Use emojis for visual interest in headings
+    - Bold important points
+    - Use ">" for quote-style callouts when highlighting key information
+    - Create clear visual hierarchy with headers
+    - Add horizontal rules (---) to separate major sections
 
-OUTPUT: Return ONLY the brochure content in markdown format. Do not include code blocks or explanations.
-"""
+    OUTPUT: Return ONLY the brochure content in markdown format. Do not include code blocks or explanations.
+    """
 
     def get_links_user_prompt(self, url):
         """Create a user prompt for selecting relevant links"""
         user_prompt = f"""
-Here is the list of links on the website {url} -
-Please decide which of these are relevant web links for a brochure about the company, 
-respond with the full https URL in JSON format.
-Do not include Terms of Service, Privacy, email links.
+        Here is the list of links on the website {url} -
+        Please decide which of these are relevant web links for a brochure about the company, 
+        respond with the full https URL in JSON format.
+        Do not include Terms of Service, Privacy, email links.
 
-Links (some might be relative links):
+        Links (some might be relative links):
 
-"""
+        """
         links = fetch_website_links(url)
         user_prompt += "\n".join(links)
         return user_prompt
 
     def select_relevant_links(self, url):
         """Use AI to select relevant links from a webpage"""
-        print(f"🔍 Selecting relevant links for {url}...")
+        print(f" Selecting relevant links for {url}...")
         
         try:
             response = self.openai.chat.completions.create(
@@ -155,10 +155,10 @@ Links (some might be relative links):
             
             result = response.choices[0].message.content
             links = json.loads(result)
-            print(f"✅ Found {len(links.get('links', []))} relevant links")
+            print(f" Found {len(links.get('links', []))} relevant links")
             return links
         except Exception as e:
-            print(f"❌ Error selecting links: {e}")
+            print(f" Error selecting links: {e}")
             return {"links": []}
 
     def fetch_page_and_all_relevant_links(self, url):
@@ -175,7 +175,7 @@ Links (some might be relative links):
                 result += f"\n\n### Link: {link['type']}\n"
                 result += fetch_website_contents(link["url"])
             except Exception as e:
-                print(f"⚠️  Could not fetch {link['url']}: {e}")
+                print(f" Could not fetch {link['url']}: {e}")
                 continue
         
         return result
@@ -183,18 +183,18 @@ Links (some might be relative links):
     def get_brochure_user_prompt(self, company_name, url):
         """Create the user prompt for brochure generation"""
         user_prompt = f"""
-You are looking at a company called: {company_name}
-Here are the contents of its landing page and other relevant pages;
-use this information to build a short brochure of the company in markdown without code blocks.
+        You are looking at a company called: {company_name}
+        Here are the contents of its landing page and other relevant pages;
+        use this information to build a short brochure of the company in markdown without code blocks.
 
-"""
+        """
         user_prompt += self.fetch_page_and_all_relevant_links(url)
         user_prompt = user_prompt[:15_000]
         return user_prompt
 
     def create_brochure(self, company_name, url):
         """Generate a brochure for the company (non-streaming)"""
-        print(f"\n🎨 Generating brochure for {company_name}...\n")
+        print(f"\n Generating brochure for {company_name}...\n")
         
         try:
             response = self.openai.chat.completions.create(
@@ -206,10 +206,10 @@ use this information to build a short brochure of the company in markdown withou
             )
             
             result = response.choices[0].message.content
-            print("\n✅ Brochure generated successfully!\n")
+            print("\n Brochure generated successfully!\n")
             return result
         except Exception as e:
-            print(f"\n❌ Error generating brochure: {e}\n")
+            print(f"\n Error generating brochure: {e}\n")
             return None
         
     def generate_brochure(self, company_name, url):
@@ -227,7 +227,7 @@ use this information to build a short brochure of the company in markdown withou
 
     def stream_brochure(self, company_name, url):
         """Generate a brochure with streaming output (typewriter effect)"""
-        print(f"\n🎨 Generating brochure for {company_name}...\n")
+        print(f"\n Generating brochure for {company_name}...\n")
         print("-" * 80)
         
         try:
@@ -248,11 +248,11 @@ use this information to build a short brochure of the company in markdown withou
                 yield content
             
             print("\n" + "-" * 80)
-            print("\n✅ Brochure generated successfully!\n")
+            print("\n Brochure generated successfully!\n")
             return full_response
             
         except Exception as e:
-            print(f"\n❌ Error generating brochure: {e}\n")
+            print(f"\n Error generating brochure: {e}\n")
             return None
 
     def save_brochure(self, brochure_content, filename):
@@ -262,11 +262,7 @@ use this information to build a short brochure of the company in markdown withou
                 f.write(brochure_content)
             print(f"💾 Brochure saved to {filename}")
         except Exception as e:
-            print(f"❌ Error saving brochure: {e}")
-    
-    # ========================================
-    # Color Extraction from Website
-    # ========================================
+            print(f"Error saving brochure: {e}")
     
     # ========================================
     # Color Extraction from Website
@@ -339,11 +335,11 @@ use this information to build a short brochure of the company in markdown withou
                         colors['accent'] = '#{:02x}{:02x}{:02x}'.format(*vibrant_colors[2])
                         print(f"   Accent (from logo): {colors['accent']}")
                     
-                    print(f"   ✅ Colors extracted from logo successfully")
+                    print(f"Colors extracted from logo successfully")
                     return colors
                     
                 except Exception as e:
-                    print(f"   ⚠️  Could not extract colors from logo: {e}")
+                    print(f"Could not extract colors from logo: {e}")
             
             # Fallback: Extract from website HTML/CSS
             print("   Extracting colors from website CSS...")
@@ -409,14 +405,14 @@ use this information to build a short brochure of the company in markdown withou
                     colors['accent'] = unique_colors[2]
                     print(f"   Accent: {colors['accent']}")
                 
-                print(f"   ✅ Extracted {len(unique_colors)} colors from CSS")
+                print(f"Extracted {len(unique_colors)} colors from CSS")
             else:
-                print(f"   ⚠️  No brand colors found, using defaults")
+                print(f"No brand colors found, using defaults")
             
             return colors
             
         except Exception as e:
-            print(f"   ❌ Error: {e}")
+            print(f"Error: {e}")
             return {
                 'primary': '#6366f1',
                 'secondary': '#ec4899',
@@ -495,14 +491,14 @@ use this information to build a short brochure of the company in markdown withou
                     # Convert to base64
                     img_data = base64.b64encode(img_response.content).decode()
                     mime_type = img_response.headers.get('content-type', 'image/png')
-                    print(f"   ✅ Logo extracted successfully")
+                    print(f"Logo extracted successfully")
                     return f"data:{mime_type};base64,{img_data}"
             
-            print(f"   ⚠️  Could not find logo")
+            print(f"Could not find logo")
             return None
             
         except Exception as e:
-            print(f"   ❌ Error extracting logo: {e}")
+            print(f"Error extracting logo: {e}")
             return None
     
     def extract_company_images(self, url, max_images=6):
@@ -657,17 +653,17 @@ use this information to build a short brochure of the company in markdown withou
                         img_str = base64.b64encode(buffered.getvalue()).decode()
                         
                         images.append(f"data:image/jpeg;base64,{img_str}")
-                        print(f"   ✅ Image {len(images)} extracted ({pil_img.width}x{pil_img.height})")
+                        print(f"Image {len(images)} extracted ({pil_img.width}x{pil_img.height})")
                 
                 except Exception as e:
                     # Silent fail for individual images
                     continue
             
-            print(f"   ✅ Successfully extracted {len(images)} valid images")
+            print(f"Successfully extracted {len(images)} valid images")
             return images
             
         except Exception as e:
-            print(f"   ❌ Error extracting images: {e}")
+            print(f" Error extracting images: {e}")
             import traceback
             traceback.print_exc()
             return []
@@ -684,7 +680,7 @@ use this information to build a short brochure of the company in markdown withou
             String with company headline
         """
         try:
-            print(f"✍️  Generating headline for {company_name}...")
+            print(f"Generating headline for {company_name}...")
             
             # Fetch a bit of content from the website
             contents = fetch_website_contents(url)
@@ -710,6 +706,44 @@ use this information to build a short brochure of the company in markdown withou
             print(f"   ⚠️  Could not generate headline: {e}")
             return "Professional Company Brochure"
         
+    def generate_qr_code(self, data, size=200):
+        """
+        Generate QR code for contact information or URL
+        
+        Args:
+            data: String data to encode (URL, vCard, etc.)
+            size: Size of QR code in pixels
+            
+        Returns:
+            Base64 encoded image string
+        """
+        try:
+            import qrcode
+            from io import BytesIO
+            import base64
+            from PIL import Image
+            
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_H,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(data)
+            qr.make(fit=True)
+            
+            img = qr.make_image(fill_color="#6366f1", back_color="white")
+            img = img.resize((size, size), Image.Resampling.LANCZOS)
+            
+            buffered = BytesIO()
+            img.save(buffered, format="PNG")
+            img_str = base64.b64encode(buffered.getvalue()).decode()
+            
+            return f"data:image/png;base64,{img_str}"
+        except Exception as e:
+            print(f"Error generating QR code: {e}")
+            return None
+            
     # ========================================
     # Generate Interactive HTML
     # ========================================
@@ -721,7 +755,7 @@ use this information to build a short brochure of the company in markdown withou
         """
         import markdown
         
-        print(f"🎨 Generating interactive HTML brochure for {company_name}...")
+        print(f"Generating interactive HTML brochure for {company_name}...")
         
         # Generate company headline
         company_headline = self.generate_company_headline(company_name, company_url) if company_url else "Professional Company Brochure"
@@ -739,6 +773,13 @@ use this information to build a short brochure of the company in markdown withou
         # Extract images
         images = self.extract_company_images(company_url, max_images=6) if company_url else []
         
+        # Generate QR code for the company URL
+        qr_code_data = None
+        if company_url:
+            print(f"📱 Generating QR code for {company_url}...")
+            qr_code_data = self.generate_qr_code(company_url)
+            print(f"QR code generated")
+
         # Convert markdown to HTML
         html_content = markdown.markdown(
             brochure_content,
@@ -763,430 +804,505 @@ use this information to build a short brochure of the company in markdown withou
                 '''
             gallery_html += '</div>'
         
+        # QR Code Section HTML
+        qr_section = ""
+        if qr_code_data:
+            qr_section = f'''
+            <div class="qr-section">
+                <div class="qr-container">
+                    <div class="qr-code">
+                        <img src="{qr_code_data}" alt="QR Code">
+                    </div>
+                    <div class="qr-text">
+                        <h3>📱 Quick Access</h3>
+                        <p>Scan to visit our website</p>
+                        <p class="qr-url">{company_url}</p>
+                    </div>
+                </div>
+            </div>
+            '''
+
         # Generate complete HTML
         return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{company_name} - {company_headline}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-        
-        :root {{
-            --primary: {brand_colors['primary']};
-            --secondary: {brand_colors['secondary']};
-            --accent: {brand_colors['accent']};
-            --dark: #1e293b;
-            --gray: #64748b;
-            --light: #f1f5f9;
-            --white: #ffffff;
-        }}
-        
-        body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--dark);
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            padding: 0;
-            margin: 0;
-        }}
-        
-        .page-wrapper {{
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }}
-        
-        .brochure-header {{
-            background: white;
-            padding: 40px 40px 35px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-            margin-bottom: 30px;
-            position: relative;
-            overflow: hidden;
-        }}
-        
-        .brochure-header::before {{
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
-        }}
-        
-        .company-logo {{
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            background: white;
-            padding: 10px;
-        }}
-        
-        .company-logo img {{
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }}
-        
-        .company-logo-fallback {{
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 15px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            font-size: 48px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }}
-        
-        .brochure-header h1 {{
-            font-size: 2.5rem;
-            color: var(--dark);
-            margin-bottom: 10px;
-            font-weight: 800;
-            line-height: 1.2;
-        }}
-        
-        .brochure-subtitle {{
-            font-size: 1.2rem;
-            color: var(--dark);
-            margin-bottom: 15px;
-            font-weight: 600;
-            line-height: 1.4;
-        }}
-        
-        .header-badge {{
-            display: inline-block;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            margin: 5px 5px 0;
-        }}
-        
-        .image-gallery {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }}
-        
-        .gallery-item {{
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
-            background: white;
-        }}
-        
-        .gallery-item:hover {{
-            transform: translateY(-5px) scale(1.02);
-        }}
-        
-        .gallery-item img {{
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            display: block;
-        }}
-        
-        .gallery-item img[src=""],
-        .gallery-item img:not([src]) {{
-            display: none;
-        }}
-        
-        .brochure-content {{
-            background: white;
-            padding: 45px 45px 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            margin-bottom: 30px;
-            color: var(--dark);
-        }}
-        
-        .brochure-content h2 {{
-            color: var(--dark);
-            font-size: 1.9rem;
-            margin-top: 35px;
-            margin-bottom: 18px;
-            padding-bottom: 12px;
-            border-bottom: 3px solid var(--primary);
-            position: relative;
-            font-weight: 800;
-            line-height: 1.3;
-        }}
-        
-        .brochure-content h2:first-child {{
-            margin-top: 0;
-        }}
-        
-        .brochure-content h2::after {{
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            left: 0;
-            width: 80px;
-            height: 3px;
-            background: var(--secondary);
-        }}
-        
-        .brochure-content h3 {{
-            color: var(--dark);
-            font-size: 1.4rem;
-            margin-top: 25px;
-            margin-bottom: 12px;
-            font-weight: 700;
-            line-height: 1.3;
-        }}
-        
-        .brochure-content h4 {{
-            color: var(--dark);
-            font-size: 1.2rem;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            font-weight: 600;
-            line-height: 1.3;
-        }}
-        
-        .brochure-content h5 {{
-            color: var(--dark);
-            font-size: 1.05rem;
-            margin-top: 16px;
-            margin-bottom: 8px;
-            font-weight: 600;
-            line-height: 1.3;
-        }}
-        
-        .brochure-content h6 {{
-            color: var(--dark);
-            font-size: 0.95rem;
-            margin-top: 14px;
-            margin-bottom: 8px;
-            font-weight: 600;
-            line-height: 1.3;
-        }}
-        
-        .brochure-content p {{
-            margin-bottom: 14px;
-            font-size: 1.05rem;
-            line-height: 1.65;
-            color: var(--dark);
-        }}
-        
-        .brochure-content ul,
-        .brochure-content ol {{
-            margin-left: 28px;
-            margin-bottom: 18px;
-        }}
-        
-        .brochure-content li {{
-            margin-bottom: 10px;
-            font-size: 1rem;
-            line-height: 1.6;
-            color: var(--dark);
-        }}
-        
-        .brochure-content li::marker {{
-            color: var(--primary);
-            font-weight: bold;
-        }}
-        
-        .brochure-content blockquote {{
-            background: var(--light);
-            border-left: 4px solid var(--primary);
-            padding: 18px 25px;
-            margin: 20px 0;
-            border-radius: 8px;
-            font-style: italic;
-            font-size: 1.05rem;
-            color: var(--dark);
-            line-height: 1.6;
-        }}
-        
-        .brochure-content strong {{
-            color: var(--primary);
-            font-weight: 700;
-        }}
-        
-        .brochure-content a {{
-            color: var(--primary);
-            text-decoration: none;
-            border-bottom: 2px solid var(--primary);
-            transition: all 0.3s ease;
-        }}
-        
-        .brochure-content a:hover {{
-            color: var(--secondary);
-            border-bottom-color: var(--secondary);
-        }}
-        
-        .brochure-content hr {{
-            border: none;
-            height: 2px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
-            margin: 35px 0;
-        }}
-        
-        .brochure-footer {{
-            background: white;
-            padding: 40px 40px 35px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-        }}
-        
-        .brochure-footer h2 {{
-            color: var(--dark);
-            margin-bottom: 15px;
-            font-weight: 800;
-            font-size: 1.8rem;
-        }}
-        
-        .brochure-footer p {{
-            color: var(--dark);
-            line-height: 1.6;
-        }}
-        
-        .cta-button {{
-            display: inline-block;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 16px 35px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin: 15px 8px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
-        }}
-        
-        .cta-button:hover {{
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-        }}
-        
-        @media print {{
-            body {{ 
-                background: white; 
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{company_name} - {company_headline}</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+            * {{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }}
-            .page-wrapper {{ 
-                padding: 0; 
-                max-width: 100%;
-            }}
-            .brochure-header, .brochure-content, .brochure-footer {{
-                box-shadow: none;
-                page-break-inside: avoid;
-                padding: 30px;
-            }}
-            .cta-button {{ 
-                display: none; 
-            }}
-            .image-gallery {{ 
-                page-break-inside: avoid;
-            }}
-            .brochure-content h2 {{
-                page-break-after: avoid;
-            }}
-        }}
-        
-        @media (max-width: 768px) {{
-            .page-wrapper {{
-                padding: 20px 15px;
-            }}
-            .brochure-header {{ 
-                padding: 30px 25px 25px; 
-            }}
-            .brochure-header h1 {{ 
-                font-size: 1.8rem; 
-            }}
-            .brochure-subtitle {{
-                font-size: 1.05rem;
-            }}
-            .brochure-content {{ 
-                padding: 30px 25px 25px; 
-            }}
-            .brochure-content h2 {{ 
-                font-size: 1.6rem; 
-                margin-top: 25px;
-                margin-bottom: 15px;
-            }}
-            .brochure-content h3 {{
-                font-size: 1.25rem;
-            }}
-            .brochure-content p {{
-                font-size: 0.98rem;
-            }}
-            .image-gallery {{ 
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }}
-            .gallery-item img {{
-                height: 200px;
-            }}
-            .company-logo,
-            .company-logo-fallback {{
-                width: 100px;
-                height: 100px;
-                font-size: 40px;
-            }}
-        }}
-        
-        html {{ 
-            scroll-behavior: smooth; 
-        }}
-    </style>
-</head>
-<body>
-    <div class="page-wrapper">
-        <header class="brochure-header">
-            {logo_html}
-            <h1>{company_name}</h1>
-            <p class="brochure-subtitle">{company_headline}</p>
-            <div class="header-badge">📄 Marketing Brochure</div>
-            {f'<div class="header-badge">🌐 {company_url}</div>' if company_url else ''}
-        </header>
-        
-        {gallery_html}
-        
-        <main class="brochure-content">
-            {html_content}
-        </main>
-        
-        <footer class="brochure-footer">
-            <h2>Ready to Connect?</h2>
-            <p style="font-size: 1.2rem; color: var(--gray); margin: 20px 0;">
-                Get in touch with us today to discover how we can help you achieve your goals.
-            </p>
-            {f'<a href="{company_url}" class="cta-button">🌐 Visit Website</a>' if company_url else ''}
-            <a href="javascript:window.print()" class="cta-button">📄 Print Brochure</a>
             
-            <p style="margin-top: 40px; color: var(--gray); font-size: 0.9rem;">
-                Generated by AI Brochure Generator | © {company_name}
-            </p>
-        </footer>
-    </div>
-</body>
-</html>"""
+            :root {{
+                --primary: {brand_colors['primary']};
+                --secondary: {brand_colors['secondary']};
+                --accent: {brand_colors['accent']};
+                --dark: #1e293b;
+                --gray: #64748b;
+                --light: #f1f5f9;
+                --white: #ffffff;
+            }}
+            
+            body {{
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                line-height: 1.6;
+                color: var(--dark);
+                background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+                padding: 0;
+                margin: 0;
+            }}
+            
+            .page-wrapper {{
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 30px 20px;
+            }}
+            
+            .brochure-header {{
+                background: white;
+                padding: 40px 40px 35px;
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                text-align: center;
+                margin-bottom: 30px;
+                position: relative;
+                overflow: hidden;
+            }}
+            
+            .brochure-header::before {{
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 5px;
+                background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            }}
+            
+            .company-logo {{
+                width: 120px;
+                height: 120px;
+                margin: 0 auto 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                background: white;
+                padding: 10px;
+            }}
+            
+            .company-logo img {{
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+            }}
+            
+            .company-logo-fallback {{
+                width: 120px;
+                height: 120px;
+                margin: 0 auto 15px;
+                background: linear-gradient(135deg, var(--primary), var(--accent));
+                color: white;
+                font-size: 48px;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            }}
+            
+            .brochure-header h1 {{
+                font-size: 2.5rem;
+                color: var(--dark);
+                margin-bottom: 10px;
+                font-weight: 800;
+                line-height: 1.2;
+            }}
+            
+            .brochure-subtitle {{
+                font-size: 1.2rem;
+                color: var(--dark);
+                margin-bottom: 15px;
+                font-weight: 600;
+                line-height: 1.4;
+            }}
+            
+            .header-badge {{
+                display: inline-block;
+                background: linear-gradient(135deg, var(--primary), var(--accent));
+                color: white;
+                padding: 8px 20px;
+                border-radius: 50px;
+                font-weight: 600;
+                font-size: 0.85rem;
+                margin: 5px 5px 0;
+            }}
+            
+            .image-gallery {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }}
+            
+            .gallery-item {{
+                border-radius: 15px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                transition: transform 0.3s ease;
+                background: white;
+            }}
+            
+            .gallery-item:hover {{
+                transform: translateY(-5px) scale(1.02);
+            }}
+            
+            .gallery-item img {{
+                width: 100%;
+                height: 220px;
+                object-fit: cover;
+                display: block;
+            }}
+            
+            .gallery-item img[src=""],
+            .gallery-item img:not([src]) {{
+                display: none;
+            }}
+            
+            .brochure-content {{
+                background: white;
+                padding: 45px 45px 40px;
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                margin-bottom: 30px;
+                color: var(--dark);
+            }}
+            
+            .brochure-content h2 {{
+                color: var(--dark);
+                font-size: 1.9rem;
+                margin-top: 35px;
+                margin-bottom: 18px;
+                padding-bottom: 12px;
+                border-bottom: 3px solid var(--primary);
+                position: relative;
+                font-weight: 800;
+                line-height: 1.3;
+            }}
+            
+            .brochure-content h2:first-child {{
+                margin-top: 0;
+            }}
+            
+            .brochure-content h2::after {{
+                content: '';
+                position: absolute;
+                bottom: -3px;
+                left: 0;
+                width: 80px;
+                height: 3px;
+                background: var(--secondary);
+            }}
+            
+            .brochure-content h3 {{
+                color: var(--dark);
+                font-size: 1.4rem;
+                margin-top: 25px;
+                margin-bottom: 12px;
+                font-weight: 700;
+                line-height: 1.3;
+            }}
+            
+            .brochure-content h4 {{
+                color: var(--dark);
+                font-size: 1.2rem;
+                margin-top: 20px;
+                margin-bottom: 10px;
+                font-weight: 600;
+                line-height: 1.3;
+            }}
+            
+            .brochure-content h5 {{
+                color: var(--dark);
+                font-size: 1.05rem;
+                margin-top: 16px;
+                margin-bottom: 8px;
+                font-weight: 600;
+                line-height: 1.3;
+            }}
+            
+            .brochure-content h6 {{
+                color: var(--dark);
+                font-size: 0.95rem;
+                margin-top: 14px;
+                margin-bottom: 8px;
+                font-weight: 600;
+                line-height: 1.3;
+            }}
+            
+            .brochure-content p {{
+                margin-bottom: 14px;
+                font-size: 1.05rem;
+                line-height: 1.65;
+                color: var(--dark);
+            }}
+            
+            .brochure-content ul,
+            .brochure-content ol {{
+                margin-left: 28px;
+                margin-bottom: 18px;
+            }}
+            
+            .brochure-content li {{
+                margin-bottom: 10px;
+                font-size: 1rem;
+                line-height: 1.6;
+                color: var(--dark);
+            }}
+            
+            .brochure-content li::marker {{
+                color: var(--primary);
+                font-weight: bold;
+            }}
+            
+            .brochure-content blockquote {{
+                background: var(--light);
+                border-left: 4px solid var(--primary);
+                padding: 18px 25px;
+                margin: 20px 0;
+                border-radius: 8px;
+                font-style: italic;
+                font-size: 1.05rem;
+                color: var(--dark);
+                line-height: 1.6;
+            }}
+            
+            .brochure-content strong {{
+                color: var(--primary);
+                font-weight: 700;
+            }}
+            
+            .brochure-content a {{
+                color: var(--primary);
+                text-decoration: none;
+                border-bottom: 2px solid var(--primary);
+                transition: all 0.3s ease;
+            }}
+            
+            .brochure-content a:hover {{
+                color: var(--secondary);
+                border-bottom-color: var(--secondary);
+            }}
+            
+            .brochure-content hr {{
+                border: none;
+                height: 2px;
+                background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+                margin: 35px 0;
+            }}
+
+            /* QR Code Section */
+            .qr-section {{
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                margin-bottom: 30px;
+            }}
+            
+            .qr-container {{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 40px;
+                flex-wrap: wrap;
+            }}
+            
+            .qr-code {{
+                background: white;
+                padding: 20px;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                border: 3px solid var(--light);
+            }}
+            
+            .qr-code img {{
+                width: 200px;
+                height: 200px;
+                display: block;
+            }}
+            
+            .qr-text {{
+                text-align: left;
+                max-width: 400px;
+            }}
+            
+            .qr-text h3 {{
+                color: var(--primary);
+                font-size: 1.8rem;
+                margin-bottom: 15px;
+                font-weight: 800;
+            }}
+            
+            .qr-text p {{
+                color: var(--gray);
+                font-size: 1.1rem;
+                margin-bottom: 10px;
+                line-height: 1.6;
+            }}
+            
+            .qr-url {{
+                color: var(--primary);
+                font-weight: 600;
+                word-break: break-all;
+            }}
+            
+            .brochure-footer {{
+                background: white;
+                padding: 40px 40px 35px;
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                text-align: center;
+            }}
+            
+            .brochure-footer h2 {{
+                color: var(--dark);
+                margin-bottom: 15px;
+                font-weight: 800;
+                font-size: 1.8rem;
+            }}
+            
+            .brochure-footer p {{
+                color: var(--dark);
+                line-height: 1.6;
+            }}
+            
+            .cta-button {{
+                display: inline-block;
+                background: linear-gradient(135deg, var(--primary), var(--accent));
+                color: white;
+                padding: 16px 35px;
+                border-radius: 50px;
+                text-decoration: none;
+                font-weight: 700;
+                font-size: 1.1rem;
+                margin: 15px 8px 0;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                transition: all 0.3s ease;
+            }}
+            
+            .cta-button:hover {{
+                transform: translateY(-3px);
+                box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            }}
+            
+            @media print {{
+                body {{ 
+                    background: white; 
+                }}
+                .page-wrapper {{ 
+                    padding: 0; 
+                    max-width: 100%;
+                }}
+                .brochure-header, .brochure-content, .brochure-footer {{
+                    box-shadow: none;
+                    page-break-inside: avoid;
+                    padding: 30px;
+                }}
+                .cta-button {{ 
+                    display: none; 
+                }}
+                .image-gallery {{ 
+                    page-break-inside: avoid;
+                }}
+                .brochure-content h2 {{
+                    page-break-after: avoid;
+                }}
+            }}
+            
+            @media (max-width: 768px) {{
+                .page-wrapper {{
+                    padding: 20px 15px;
+                }}
+                .brochure-header {{ 
+                    padding: 30px 25px 25px; 
+                }}
+                .brochure-header h1 {{ 
+                    font-size: 1.8rem; 
+                }}
+                .brochure-subtitle {{
+                    font-size: 1.05rem;
+                }}
+                .brochure-content {{ 
+                    padding: 30px 25px 25px; 
+                }}
+                .brochure-content h2 {{ 
+                    font-size: 1.6rem; 
+                    margin-top: 25px;
+                    margin-bottom: 15px;
+                }}
+                .brochure-content h3 {{
+                    font-size: 1.25rem;
+                }}
+                .brochure-content p {{
+                    font-size: 0.98rem;
+                }}
+                .image-gallery {{ 
+                    grid-template-columns: 1fr;
+                    gap: 15px;
+                }}
+                .gallery-item img {{
+                    height: 200px;
+                }}
+                .company-logo,
+                .company-logo-fallback {{
+                    width: 100px;
+                    height: 100px;
+                    font-size: 40px;
+                }}
+            }}
+            
+            html {{ 
+                scroll-behavior: smooth; 
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="page-wrapper">
+            <header class="brochure-header">
+                {logo_html}
+                <h1>{company_name}</h1>
+                <p class="brochure-subtitle">{company_headline}</p>
+                {f'<div class="header-badge">🌐 {company_url}</div>' if company_url else ''}
+            </header>
+            
+            {gallery_html}
+            
+            <main class="brochure-content">
+                {html_content}
+            </main>
+
+            {qr_section}
+            
+            <footer class="brochure-footer">
+                <h2>Ready to Connect?</h2>
+                <p style="font-size: 1.2rem; color: var(--gray); margin: 20px 0;">
+                    Get in touch with us today to discover how we can help you achieve your goals.
+                </p>
+                {f'<a href="{company_url}" class="cta-button">🌐 Visit Website</a>' if company_url else ''}
+                <a href="javascript:window.print()" class="cta-button">📄 Print Brochure</a>
+                
+                <p style="margin-top: 40px; color: var(--gray); font-size: 0.9rem;">
+                    Generated by AI Brochure Generator | © {company_name}
+                </p>
+            </footer>
+        </div>
+    </body>
+    </html>"""

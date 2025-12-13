@@ -129,7 +129,7 @@ def generate_interactive_html():
         }), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5002))
+    port = int(os.environ.get('PORT', 5005))
     is_production = os.environ.get('FLASK_ENV') == 'production'
     
     print("Starting Flask application...")
